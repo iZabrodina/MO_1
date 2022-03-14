@@ -1,0 +1,105 @@
+#include <iostream>
+#include <locale.h>
+#include <cmath>
+using namespace std;
+
+
+float function(float x, float y) 
+{
+    return(100 * (x * x - y) * (x * x - y) + (1 - x) * (1 - x));
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    int step = 0;
+
+    cout << "В качестве теста возьмем функцию Розенборка: 100(х^2 - y)^2 + (1 - x)^2" << endl;
+    float delta, e, alfa, x, y;
+    cout << "Необходимо задать начальную точку. Введите х: ";
+    cin >> x;
+    cout << "Введите y: ";
+    cin >> y;
+    cout << "Приращение: ";
+    cin >> delta;
+    cout << "Коэффициент уменьшения шага (>1): ";
+    cin >> alfa;
+    cout << "Параметр окончания поиска (>0): ";
+    cin >> e;
+
+    float result_fun, result_fun1, result_fun2, result_fun3;
+    //cout << endl << result_fun << endl;
+
+    float x1, y1, x0, y0, x2, y2;
+    bool b = true;
+     x1 = x;
+     y1 = y;
+    do
+    {
+        //x1 = x - 1;
+        step++;
+        x0 = x;
+        y0 = y;
+        result_fun = function(x, y);
+        result_fun1 = function((x - delta), y);
+        result_fun2 = function((x + delta), y);
+        if (result_fun1 < result_fun)
+        {
+            x1 = x - delta;
+            result_fun = result_fun1;
+            x = x1;
+        }
+        else if (result_fun2 < result_fun)
+        {
+            x1 = x + delta;
+            result_fun = result_fun2;
+            x = x1;
+        }
+
+        result_fun1 = function(x, (y - delta));
+        result_fun2 = function(x, (y + delta));
+        if (result_fun1 < result_fun)
+        {
+            y1 = y - delta;
+            result_fun = result_fun1;
+            y = y1;
+        }
+        else if (result_fun2 < result_fun)
+        {
+            y1 = y + delta;
+            result_fun = result_fun2;
+            y = y1;
+        }
+
+
+        if ((x1 != x0) || (y0 != y1))
+        {
+            do
+            {
+                x2 = x1 + (x1 - x0);
+                y2 = y1 + (y1 - y0);
+                result_fun3 = function(x2, y2);
+                if (result_fun3 < result_fun)
+                {
+                    result_fun = result_fun3;
+                    x0 = x1;
+                    y0 = y1;
+                    x1 = x2;
+                    y1 = y2;
+                    x = x2;
+                    y = y2;
+                    b = true;
+                }
+                else b = false;
+            } while (b == true);
+            delta = delta / alfa;
+        }
+        else (delta = delta / alfa);
+    } while (sqrt(delta * delta) >= e);
+
+    result_fun = function(x, y);
+    cout << endl << "Полученное минимальное значение функции: " << result_fun << endl;
+    cout << "Ответ: (" << x << ", " << y << ")" << endl;
+    cout << "Количество шагов: " << step;
+}
+
