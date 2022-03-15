@@ -1,0 +1,117 @@
+#include <iostream>
+#include <locale.h>
+#include <cmath>
+using namespace std;
+
+
+float function(float x, float y)
+{
+    return(100 * (x * x - y) * (x * x - y) + (1 - x) * (1 - x));
+}
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    int step = 0;
+
+    cout << "В качестве теста возьмем функцию Розенборка: 100(х^2 - y)^2 + (1 - x)^2" << endl;
+    //float x1, y1, x2, y2, x3, y3;
+    float x[3];
+    float y[3];
+    cout << "Необходимо задать начальную точку. Введите х: ";
+    cin >> x[0];
+    cout << "Введите y: ";
+    cin >> y[0];
+    cout << "Необходимо задать еще две точки для построения многоугольника" << endl;
+    do
+    {
+        cout << "Координаты второй точки. Введите х: ";
+        cin >> x[1];
+        cout << "Введите y: ";
+        cin >> y[1];
+        cout << "Координаты третей точки. Введите х: ";
+        cin >> x[2];
+        cout << "Введите y: ";
+        cin >> y[2];
+
+        if (((x[2] == x[0]) && (y[2] == y[0])) || ((x[1] == x[2]) && (y[1] == y[2])) || ((x[1] == x[0]) && (y[1] == y[0])))
+            cout << "Ошибка! Точки совпадают! Повторите ввод точек без повтора!" << endl;
+    } while (((x[2] == x[0]) && (y[2] == y[0])) || ((x[1] == x[2]) && (y[1] == y[2])) || ((x[1] == x[0]) && (y[1] == y[0])));
+
+    float a, b, g, e, res, new_res;
+    cout << "Коэффициент отражения(>0): ";
+    cin >> a;
+    cout << "Коэффициент растяжения(>1): ";
+    cin >> b;
+    cout << "Коэффициент сжатия[0;1]: ";
+    cin >> g;
+    cout << "Параметр окончания поиска (>0): ";
+    cin >> e;
+    float xc, yc;
+    int best_coef = 0, worst_coef = 0;
+    do
+    {
+        step++;
+        for (int i = 0; i < 3; i++)
+        {
+            if (function(x[i], y[i]) < function(x[best_coef], y[best_coef]))
+                best_coef = i;
+            else if (function(x[i], y[i]) > function(x[worst_coef], y[worst_coef]))
+                worst_coef = i;
+
+        }
+        // cout << "Best: " << xl << " " << yl << endl;
+        // cout << "Bed: " << xh << " " << yh << endl;
+        xc = 0.5 * (x[0] + x[1] + x[2] - x[worst_coef]);                          //нашли центр тяжести
+        yc = 0.5 * (y[0] + y[1] + y[2] - y[worst_coef]);
+
+        float x_otr, y_otr, x_szh, y_szh;
+        x_otr = xc + a * (xc - x[worst_coef]);                                   //отражение
+        y_otr = yc + a * (yc - y[worst_coef]);
+
+        float x_ras, y_ras;
+        if (function(x_otr, y_otr) < function(x[best_coef], y[best_coef]))
+        {
+            x_ras = xc + b * (x_otr - xc);                                        //растяжение
+            y_ras = yc + b * (y_otr - yc);
+            if (function(x_otr, y_otr) < function(x[best_coef], y[best_coef]))
+            {
+                x[worst_coef] = x_ras;
+                y[worst_coef] = y_ras;
+            }
+            else
+            {
+                x[worst_coef] = x_otr;
+                y[worst_coef] = y_otr;
+            }
+        }
+        else if (function(x_otr, y_otr) >= function(x[best_coef], y[best_coef]))              //сжатие
+        {
+            x_szh = xc + g * (x[worst_coef] - xc);
+            y_szh = yc + g * (y[worst_coef] - yc);
+            x[worst_coef] = x_szh;
+            y[worst_coef] = y_szh;
+        }
+
+        /*else if (function(x_otr, y_otr) > function(x[worst_coef], y[worst_coef]))          //редукция не нужна
+        {
+
+        }*/
+        else
+        {
+            x[worst_coef] = x_otr;
+            y[worst_coef] = y_otr;
+        }
+        res = 0;
+        for (int i = 0; i < 3; i++)
+        {
+            res += pow((function(x[i], y[i]) - function(xc, yc)), 2);
+        }
+        new_res = (sqrt(res)/3);
+        //res = 1 / 3 * (sqrt(pow((function(x[0], y[0]) - function(xc, yc)), 2) + pow(function(x[1], y[1]) - function(xc, yc), 2) + pow(function(x[2], y[2]) - function(xc, yc), 2)));
+    } while (new_res > e);
+
+    cout << endl << "Полученное минимальное значение функции: " << function(x[best_coef],y[best_coef]) << endl;
+    cout << "Ответ: (" << x[best_coef] << ", " << y[best_coef] << ")" << endl;
+    cout << "Количество шагов: " << step;
+}
